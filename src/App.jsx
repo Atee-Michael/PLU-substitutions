@@ -58,6 +58,7 @@ export default function App() {
   // UI state
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   // Auth session determines whether edit controls are available
   const [session, setSession] = useState(null);
@@ -85,13 +86,18 @@ export default function App() {
    */
   const loadData = async () => {
     setLoading(true);
+    setErrorMsg("");
 
     const { data, error } = await supabase
       .from("code_substitutions")
       .select("id, product_name, old_code, new_code, notes")
       .order("product_name", { ascending: true });
 
-    if (!error && Array.isArray(data)) setRows(data);
+    if (error) {
+      setErrorMsg(error.message || "Failed to load data.");
+    } else if (Array.isArray(data)) {
+      setRows(data);
+    }
     setLoading(false);
   };
 
@@ -113,7 +119,11 @@ export default function App() {
         .order("product_name", { ascending: true });
 
       if (!ignore) {
-        if (!error && Array.isArray(data)) setRows(data);
+        if (error) {
+          setErrorMsg(error.message || "Failed to load data.");
+        } else if (Array.isArray(data)) {
+          setRows(data);
+        }
         setLoading(false);
       }
     };
@@ -201,6 +211,7 @@ export default function App() {
    * RLS enforces that only authenticated users can write.
    */
   const saveRow = async () => {
+    setErrorMsg("");
     const payload = {
       product_name: form.product_name.trim(),
       old_code: form.old_code.trim(),
@@ -223,6 +234,7 @@ export default function App() {
       : await supabase.from("code_substitutions").insert([payload]);
 
     if (result.error) {
+      setErrorMsg(result.error.message || "Save failed. Check your login and try again.");
       alert("Save failed. Check your login and try again.");
       return;
     }
@@ -236,6 +248,7 @@ export default function App() {
    * This is irreversible, so we confirm before writing.
    */
   const deleteRow = async (row) => {
+    setErrorMsg("");
     if (!isAuthed) {
       alert("You must be logged in to delete.");
       return;
@@ -247,6 +260,7 @@ export default function App() {
     const { error } = await supabase.from("code_substitutions").delete().eq("id", row.id);
 
     if (error) {
+      setErrorMsg(error.message || "Delete failed. Check your login and try again.");
       alert("Delete failed. Check your login and try again.");
       return;
     }
@@ -338,6 +352,22 @@ export default function App() {
 
       {/* Live search */}
       <div style={{ marginTop: 14 }}>
+        {errorMsg ? (
+          <div
+            role="alert"
+            style={{
+              marginBottom: 10,
+              padding: 10,
+              borderRadius: 10,
+              border: "1px solid #f5c2c7",
+              background: "#f8d7da",
+              color: "#842029",
+              fontSize: 13,
+            }}
+          >
+            {errorMsg}
+          </div>
+        ) : null}
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
