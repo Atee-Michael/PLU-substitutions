@@ -5,35 +5,20 @@ import { supabase } from "./supabase";
  * Simple card wrapper for consistent styling.
  */
 function Card({ children }) {
-  return (
-    <div
-      style={{
-        border: "1px solid #e5e5e5",
-        borderRadius: 14,
-        padding: 12,
-        background: "white",
-      }}
-    >
-      {children}
-    </div>
-  );
+  return <div className="card">{children}</div>;
 }
 
 /**
  * Reusable input field with label.
  */
-function Field({ label, ...props }) {
+function Field({ label, className, ...props }) {
+  const inputClassName = ["input", className].filter(Boolean).join(" ");
   return (
-    <label style={{ display: "grid", gap: 6 }}>
-      <span style={{ fontSize: 13, opacity: 0.8 }}>{label}</span>
+    <label className="field">
+      <span className="field-label">{label}</span>
       <input
         {...props}
-        style={{
-          padding: 12,
-          borderRadius: 10,
-          border: "1px solid #ccc",
-          width: "100%",
-        }}
+        className={inputClassName}
       />
     </label>
   );
@@ -235,7 +220,7 @@ export default function App() {
     });
 
     if (dupName || dupNewCode) {
-      const msg = "Duplicate: Product Name and New Code must each be unique.";
+      const msg = "Duplicate: Product Name and New Code already exists.";
       setErrorMsg(msg);
       alert(msg);
       return;
@@ -310,26 +295,20 @@ export default function App() {
   };
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", padding: 16, fontFamily: "system-ui" }}>
+    <div className="app-shell">
       {/* Header */}
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+      <div className="app-header glass">
         <img
           src="/logo.png"
           alt="Logo"
           width={44}
           height={44}
-          style={{
-            borderRadius: 12,
-            border: "1px solid #e5e5e5",
-            background: "white",
-            objectFit: "contain",
-            padding: 6,
-          }}
+          className="logo"
         />
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: "8px 0 4px" }}>PLU Substitutions</h1>
-          <div style={{ fontSize: 13, opacity: 0.75 }}>
+        <div className="header-text">
+          <h1>PLU Substitutions</h1>
+          <div className="subhead">
             Search by product name, old code, new code, or notes
           </div>
         </div>
@@ -337,30 +316,14 @@ export default function App() {
         {!isAuthed ? (
           <button
             onClick={() => setAuthOpen(true)}
-            style={{
-              padding: "10px 12px",
-              borderRadius: 12,
-              border: "1px solid #ccc",
-              background: "white",
-              cursor: "pointer",
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-            }}
+            className="btn btn-ghost"
           >
             Admin login
           </button>
         ) : (
           <button
             onClick={signOut}
-            style={{
-              padding: "10px 12px",
-              borderRadius: 12,
-              border: "1px solid #ccc",
-              background: "white",
-              cursor: "pointer",
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-            }}
+            className="btn btn-ghost"
           >
             Sign out
           </button>
@@ -368,20 +331,9 @@ export default function App() {
       </div>
 
       {/* Live search */}
-      <div style={{ marginTop: 14 }}>
+      <div className="search-panel glass">
         {errorMsg ? (
-          <div
-            role="alert"
-            style={{
-              marginBottom: 10,
-              padding: 10,
-              borderRadius: 10,
-              border: "1px solid #f5c2c7",
-              background: "#f8d7da",
-              color: "#842029",
-              fontSize: 13,
-            }}
-          >
+          <div role="alert" className="alert">
             {errorMsg}
           </div>
         ) : null}
@@ -389,46 +341,27 @@ export default function App() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Type to search"
-          style={{
-            width: "100%",
-            padding: 12,
-            borderRadius: 12,
-            border: "1px solid #ccc",
-          }}
+          className="input input-search"
         />
 
-        <div style={{ marginTop: 10, fontSize: 14, opacity: 0.7 }}>
+        <div className="result-count">
           {loading ? "Loading..." : `${results.length} result${results.length === 1 ? "" : "s"}`}
         </div>
       </div>
 
       {/* Admin actions */}
       {isAuthed ? (
-        <div style={{ marginTop: 12, display: "flex", gap: 10 }}>
+        <div className="action-row">
           <button
             onClick={openAdd}
-            style={{
-              padding: "10px 12px",
-              borderRadius: 12,
-              border: "1px solid #ccc",
-              background: "white",
-              cursor: "pointer",
-              fontWeight: 700,
-            }}
+            className="btn btn-primary"
           >
             Add substitution
           </button>
 
           <button
             onClick={loadData}
-            style={{
-              padding: "10px 12px",
-              borderRadius: 12,
-              border: "1px solid #ccc",
-              background: "white",
-              cursor: "pointer",
-              fontWeight: 700,
-            }}
+            className="btn btn-ghost"
           >
             Refresh
           </button>
@@ -436,50 +369,36 @@ export default function App() {
       ) : null}
 
       {/* Results */}
-      <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
+      <div className="results">
         {results.map((r) => (
           <Card key={r.id}>
-            <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 800, fontSize: 16 }}>{r.product_name}</div>
+            <div className="result-row">
+              <div className="result-main">
+                <div className="result-title">{r.product_name}</div>
 
-                <div style={{ marginTop: 6 }}>
-                  Old Code: <b>{r.old_code}</b>
+                <div className="code-row">
+                  Old Code: <span className="code-pill">{r.old_code}</span>
                 </div>
 
-                <div style={{ marginTop: 4 }}>
-                  New Code: <b>{r.new_code}</b>
+                <div className="code-row">
+                  New Code: <span className="code-pill code-pill-new">{r.new_code}</span>
                 </div>
 
-                {r.notes ? <div style={{ marginTop: 8, opacity: 0.85 }}>{r.notes}</div> : null}
+                {r.notes ? <div className="result-notes">{r.notes}</div> : null}
               </div>
 
               {isAuthed ? (
-                <div style={{ display: "grid", gap: 8 }}>
+                <div className="result-actions">
                   <button
                     onClick={() => openEdit(r)}
-                    style={{
-                      padding: "8px 10px",
-                      borderRadius: 12,
-                      border: "1px solid #ccc",
-                      background: "white",
-                      cursor: "pointer",
-                      fontWeight: 700,
-                    }}
+                    className="btn btn-ghost btn-compact"
                   >
                     Edit
                   </button>
 
                   <button
                     onClick={() => deleteRow(r)}
-                    style={{
-                      padding: "8px 10px",
-                      borderRadius: 12,
-                      border: "1px solid #ccc",
-                      background: "white",
-                      cursor: "pointer",
-                      fontWeight: 700,
-                    }}
+                    className="btn btn-ghost btn-compact"
                   >
                     Delete
                   </button>
@@ -495,34 +414,18 @@ export default function App() {
         <div
           role="dialog"
           aria-modal="true"
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.35)",
-            display: "grid",
-            placeItems: "center",
-            padding: 16,
-          }}
+          className="modal-backdrop"
           onClick={() => {
             if (authOpen) setAuthOpen(false);
             if (editing) closeEditor();
           }}
         >
-          <div
-            style={{
-              width: "min(520px, 100%)",
-              background: "white",
-              borderRadius: 16,
-              padding: 14,
-              border: "1px solid #e5e5e5",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             {authOpen ? (
               <>
-                <div style={{ fontWeight: 900, fontSize: 18 }}>Admin login</div>
+                <div className="modal-title">Admin login</div>
 
-                <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
+                <div className="modal-body">
                   <Field
                     label="Email"
                     value={email}
@@ -540,31 +443,17 @@ export default function App() {
                   />
                 </div>
 
-                <div style={{ marginTop: 14, display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                <div className="modal-actions">
                   <button
                     onClick={() => setAuthOpen(false)}
-                    style={{
-                      padding: "10px 12px",
-                      borderRadius: 12,
-                      border: "1px solid #ccc",
-                      background: "white",
-                      cursor: "pointer",
-                      fontWeight: 700,
-                    }}
+                    className="btn btn-ghost"
                   >
                     Cancel
                   </button>
 
                   <button
                     onClick={signIn}
-                    style={{
-                      padding: "10px 12px",
-                      borderRadius: 12,
-                      border: "1px solid #ccc",
-                      background: "white",
-                      cursor: "pointer",
-                      fontWeight: 900,
-                    }}
+                    className="btn btn-primary"
                   >
                     Sign in
                   </button>
@@ -572,11 +461,11 @@ export default function App() {
               </>
             ) : (
               <>
-                <div style={{ fontWeight: 900, fontSize: 18 }}>
+                <div className="modal-title">
                   {editing?.id ? "Edit substitution" : "Add substitution"}
                 </div>
 
-                <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
+                <div className="modal-body">
                   <Field
                     label="Product Name"
                     value={form.product_name}
@@ -606,31 +495,17 @@ export default function App() {
                   />
                 </div>
 
-                <div style={{ marginTop: 14, display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                <div className="modal-actions">
                   <button
                     onClick={closeEditor}
-                    style={{
-                      padding: "10px 12px",
-                      borderRadius: 12,
-                      border: "1px solid #ccc",
-                      background: "white",
-                      cursor: "pointer",
-                      fontWeight: 700,
-                    }}
+                    className="btn btn-ghost"
                   >
                     Cancel
                   </button>
 
                   <button
                     onClick={saveRow}
-                    style={{
-                      padding: "10px 12px",
-                      borderRadius: 12,
-                      border: "1px solid #ccc",
-                      background: "white",
-                      cursor: "pointer",
-                      fontWeight: 900,
-                    }}
+                    className="btn btn-primary"
                   >
                     Save
                   </button>
