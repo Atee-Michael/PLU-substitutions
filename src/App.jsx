@@ -307,7 +307,7 @@ export default function App() {
         />
 
         <div className="header-text">
-          <h1>PLU Substitutions</h1>
+          <h1>Product Code Substitutions</h1>
           <div className="subhead">
             Search by product name, old code, new code, or notes
           </div>
