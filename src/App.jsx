@@ -224,16 +224,18 @@ export default function App() {
       return;
     }
 
-    const dup = rows.find((r) => {
+    const dupName = rows.find((r) => {
       if (editing?.id && r.id === editing.id) return false;
-      return (
-        r.product_name?.toLowerCase() === payload.product_name.toLowerCase() &&
-        r.new_code?.toLowerCase() === payload.new_code.toLowerCase()
-      );
+      return r.product_name?.toLowerCase() === payload.product_name.toLowerCase();
     });
 
-    if (dup) {
-      const msg = "Duplicate: Product Name and New Code must be unique.";
+    const dupNewCode = rows.find((r) => {
+      if (editing?.id && r.id === editing.id) return false;
+      return r.new_code?.toLowerCase() === payload.new_code.toLowerCase();
+    });
+
+    if (dupName || dupNewCode) {
+      const msg = "Duplicate: Product Name and New Code must each be unique.";
       setErrorMsg(msg);
       alert(msg);
       return;
