@@ -224,6 +224,21 @@ export default function App() {
       return;
     }
 
+    const dup = rows.find((r) => {
+      if (editing?.id && r.id === editing.id) return false;
+      return (
+        r.product_name?.toLowerCase() === payload.product_name.toLowerCase() &&
+        r.new_code?.toLowerCase() === payload.new_code.toLowerCase()
+      );
+    });
+
+    if (dup) {
+      const msg = "Duplicate: Product Name and New Code must be unique.";
+      setErrorMsg(msg);
+      alert(msg);
+      return;
+    }
+
     if (!isAuthed) {
       alert("You must be logged in to edit.");
       return;
