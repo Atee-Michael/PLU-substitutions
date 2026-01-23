@@ -475,11 +475,11 @@ export default function App() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             {authOpen ? (
               <>
-                <div className="modal-title">Admin login</div>
+                <div className="modal-title">Manager Login</div>
 
                 <div className="modal-body">
                   <Field
-                    label="Email"
+                    label="Email or Username"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     type="email"
