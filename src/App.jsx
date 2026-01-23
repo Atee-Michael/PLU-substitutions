@@ -66,6 +66,48 @@ export default function App() {
   const isAuthed = !!session?.user;
 
   /**
+   * Username shortcuts for managers.
+   * This lets managers type a simple username in the Email field.
+   *
+   * Notes:
+   * - Keep keys lowercase
+   * - Values must be valid Supabase Auth emails that already exist
+   */
+  const USERNAME_TO_EMAIL = {
+    substitutions: "teamcharlton@gmail.com",
+  };
+
+  /**
+   * Resolves what the user typed in the login field.
+   * - If it includes "@", treat it as an email and use it as-is
+   * - Otherwise treat it as a username shortcut and map it to an email
+   *
+   * Returns:
+   * - { ok: true, email: string } when resolved
+   * - { ok: false, message: string } when unknown/invalid
+   */
+  const resolveLoginToEmail = (input) => {
+    const raw = (input || "").trim();
+    if (!raw) return { ok: false, message: "Please enter your email or username." };
+
+    // If it looks like an email, use it directly
+    if (raw.includes("@")) return { ok: true, email: raw };
+
+    // Otherwise treat as username shortcut (case-insensitive)
+    const key = raw.toLowerCase();
+    const mapped = USERNAME_TO_EMAIL[key];
+
+    if (!mapped) {
+      return {
+        ok: false,
+        message: "Unknown username. Use your email address, or ask the admin to add your username.",
+      };
+    }
+
+    return { ok: true, email: mapped };
+  };
+
+  /**
    * Reloads substitutions from Supabase.
    * Used by the Refresh button and after mutations (save/delete).
    */
@@ -274,10 +316,20 @@ export default function App() {
    * Admin sign-in (email and password).
    */
   const signIn = async () => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const resolved = resolveLoginToEmail(email);
+
+    if (!resolved.ok) {
+      alert(resolved.message);
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: resolved.email,
+      password,
+    });
 
     if (error) {
-      alert("Login failed. Check email and password.");
+      alert("Login failed. Check email or username and password.");
       return;
     }
 
